@@ -1,6 +1,15 @@
 using BlazingPizza.Data;
 using BlazingPizza.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("BlazingPizzaIdentityContextConnection") ?? throw new InvalidOperationException("Connection string 'BlazingPizzaIdentityContextConnection' not found.");
+
+builder.Services.AddDbContext<BlazingPizzaIdentityContext>(options =>
+    options.UseSqlite(connectionString));
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<BlazingPizzaIdentityContext>();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
@@ -33,5 +42,6 @@ using (var scope = scopeFactory.CreateScope())
         SeedData.Initialize(db);
     }
 }
+app.UseAuthentication();;
 
 app.Run();
